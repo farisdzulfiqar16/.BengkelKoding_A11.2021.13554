@@ -843,42 +843,49 @@ include 'DB.php';
         </tbody>
 
     <tbody>
-        <!-- Kode PHP untuk menampilkan semua isi dari tabel urut berdasarkan status dan tanggal awal -->
-        <?php
-        $result = mysqli_query($mysqli, "SELECT * FROM kegiatan ORDER BY status, tgl_awal");
-        $no = 1;
-        while ($data = mysqli_fetch_array($result)) {
-        ?>
-            <tr>
-                <th scope="row"><?php echo $no++; ?></th>
-                <td><?php echo $data['isi']; ?></td>
-                <td><?php echo $data['tgl_awal']; ?></td>
-                <td><?php echo $data['tgl_akhir']; ?></td>
-                <td>
-                    <?php if ($data['status'] == '1') { ?>
-                        <a class="btn btn-success rounded-pill px-3" type="button"
-                           href="index.php?id=<?php echo $data['id']; ?>&aksi=ubah_status&status=0">
-                           Sudah
-                        </a>
-                    <?php } else { ?>
-                        <a class="btn btn-warning rounded-pill px-3" type="button"
-                           href="index.php?id=<?php echo $data['id']; ?>&aksi=ubah_status&status=1">
-                           Belum
-                        </a>
-                    <?php } ?>
-                </td>
-                <td>
-                    <a class="btn btn-info rounded-pill px-3"
-                       href="form.php?id=<?php echo $data['id']; ?>">Ubah
-                    </a>
-                    <a class="btn btn-danger rounded-pill px-3"
-                       href="index.php?id=<?php echo $data['id']; ?>&aksi=hapus">Hapus
-                    </a>
-                </td>
-            </tr>
-        <?php
-        }
-        ?>
+    <?php
+            if (isset($_POST['simpan'])) {
+                if (isset($_POST['id'])) {
+                    // Update existing record
+                    $ubah = mysqli_query($mysqli, "UPDATE kegiatan SET
+                                                    isi = '" . $_POST['isi'] . "',
+                                                    tgl_awal = '" . $_POST['tgl_awal'] . "',
+                                                    tgl_akhir = '" . $_POST['tgl_akhir'] . "'
+                                                    WHERE id = '" . $_POST['id'] . "'");
+                } else {
+                    // Insert new record
+                    $tambah = mysqli_query($mysqli, "INSERT INTO kegiatan (isi, tgl_awal, tgl_akhir, status)
+                                                    VALUES (
+                                                        '" . $_POST['isi'] . "',
+                                                        '" . $_POST['tgl_awal'] . "',
+                                                        '" . $_POST['tgl_akhir'] . "',
+                                                        '0'
+                                                    )");
+                }
+
+                echo "<script>
+                        document.location='index.php';
+                    </script>";
+            }
+
+            if (isset($_GET['aksi'])) {
+                if ($_GET['aksi'] == 'hapus') {
+                    // Delete record
+                    $hapus = mysqli_query($mysqli, "DELETE FROM kegiatan WHERE id = '" . $_GET['id'] . "'");
+                } elseif ($_GET['aksi'] == 'ubah_status') {
+                    // Update status
+                    $ubah_status = mysqli_query($mysqli, "UPDATE kegiatan SET
+                                                        status = '" . $_GET['status'] . "'
+                                                        WHERE id = '" . $_GET['id'] . "'");
+                }
+
+                echo "<script>
+                        document.location='index.php';
+                    </script>";
+            }
+            ?>
+
+        
     </tbody>
 </table>
 
